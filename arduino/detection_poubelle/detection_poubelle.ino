@@ -31,9 +31,10 @@ int distance_cm = 100;
 SharpIR mySensor = SharpIR(IRPin, model);
 
 int count_bottle = 0;
-int loop_count = 0;
 int brightness = 100;
-boolean go_count = false;
+boolean go_count = false; // decide if we have to count  loop or not.
+int loop_count = 0; // loop count for flashing scenario.
+int gauge_counter = 0; // filling gauge of the trash
 
 void setup() {
   Serial.begin(9600);
@@ -59,7 +60,7 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 void loop()
 {
-
+  // read distance to see if an object is thrown.
   distance_cm = mySensor.distance();
   if (distance_cm > 10 && distance_cm < 30) { // all time we pas here even breathing is activated
     // The bottle falls in the trash
@@ -154,6 +155,8 @@ void yellow_confetti()
   fadeToBlackBy( hole, HOLE_NUM_LEDS, 10);
   pos = random16(HOLE_NUM_LEDS);
   hole[pos] += CRGB::Yellow;
+
+  addGlitter(20);
 }
 /*
   void sinelon()
