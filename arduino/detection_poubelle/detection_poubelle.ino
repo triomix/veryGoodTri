@@ -60,7 +60,7 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 void loop()
 {
 
-   distance_cm = mySensor.distance();
+  distance_cm = mySensor.distance();
   if (distance_cm > 10 && distance_cm < 30) { // all time we pas here even breathing is activated
     // The bottle falls in the trash
     Serial.println(distance_cm);
@@ -70,34 +70,34 @@ void loop()
     count_bottle++;
   }
 
-    // Call the current pattern function once, updating the 'leds' array
-    gPatterns[gCurrentPatternNumber]();
+  // Call the current pattern function once, updating the 'leds' array
+  gPatterns[gCurrentPatternNumber]();
 
-    // send the 'leds' array out to the actual LED strip
-    FastLED.setBrightness(brightness);
-    FastLED.show();
-    // insert a delay to keep the framerate modest
-    FastLED.delay(1000 / FRAMES_PER_SECOND);
+  // send the 'leds' array out to the actual LED strip
+  FastLED.setBrightness(brightness);
+  FastLED.show();
+  // insert a delay to keep the framerate modest
+  FastLED.delay(1000 / FRAMES_PER_SECOND);
 
-    // do some periodic updates
-    EVERY_N_MILLISECONDS( 20 ) {
-      gHue++;  // slowly cycle the "base color" through the rainbow
-    }
-   
-    EVERY_N_SECONDS( 1 ) {
-      // See if we need to change scenario
-      if (loop_count == NB_FLASH_CYCLES) {
-        gCurrentPatternNumber = 0;
-        loop_count = 0;
-        brightness = 100;
-        go_count = false;
-      } else {
-        if (go_count) {
-          loop_count++;
-        }
+  // do some periodic updates
+  EVERY_N_MILLISECONDS( 20 ) {
+    gHue++;  // slowly cycle the "base color" through the rainbow
+  }
+
+  EVERY_N_SECONDS( 1 ) {
+    // See if we need to change scenario
+    if (loop_count == NB_FLASH_CYCLES) {
+      gCurrentPatternNumber = 0;
+      loop_count = 0;
+      brightness = 100;
+      go_count = false;
+    } else {
+      if (go_count) {
+        loop_count++;
       }
-      //nextPattern();  // change patterns periodically
     }
+    //nextPattern();  // change patterns periodically
+  }
 }
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
@@ -109,20 +109,20 @@ void nextPattern()
 }
 
 /*
-void rainbow()
-{
+  void rainbow()
+  {
   Serial.println("rainbow");
   // FastLED's built-in rainbow generator
   fill_rainbow( leds, NUM_LEDS, gHue, 7);
-}
+  }
 
-void rainbowWithGlitter()
-{
+  void rainbowWithGlitter()
+  {
   Serial.println("rainbowWithGlitter");
   // built-in FastLED rainbow, plus some random sparkly glitter
   rainbow();
   addGlitter(80);
-}
+  }
 */
 
 void addGlitter( fract8 chanceOfGlitter)
@@ -134,14 +134,14 @@ void addGlitter( fract8 chanceOfGlitter)
 }
 
 /*
-void confetti()
-{
+  void confetti()
+  {
   Serial.println("confetti");
   // random colored speckles that blink in and fade smoothly
   fadeToBlackBy( leds, NUM_LEDS, 10);
   int pos = random16(NUM_LEDS);
   leds[pos] += CHSV( gHue + random8(64), 200, 255);
-}
+  }
 */
 void yellow_confetti()
 {
@@ -156,28 +156,28 @@ void yellow_confetti()
   hole[pos] += CRGB::Yellow;
 }
 /*
-void sinelon()
-{
+  void sinelon()
+  {
   Serial.println("sinelon");
   // a colored dot sweeping back and forth, with fading trails
   fadeToBlackBy( leds, NUM_LEDS, 20);
   int pos = beatsin16(13, 0, NUM_LEDS);
   leds[pos] += CHSV( gHue, 255, 192);
-}
+  }
 
-void sinelon_glitter()
-{
+  void sinelon_glitter()
+  {
   Serial.println("white_sinelon");
   // a colored dot sweeping back and forth, with fading trails
   fadeToBlackBy( leds, NUM_LEDS, 20);
   int pos = beatsin16(13, 0, NUM_LEDS);
   leds[pos] += CRGB::Blue;
   addGlitter(16);
-}
+  }
 
 
-void white_bpm()
-{
+  void white_bpm()
+  {
   // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
   uint8_t BeatsPerMinute = 2;
   CRGBPalette16 palette = PartyColors_p; // ForestColors_p
@@ -188,7 +188,7 @@ void white_bpm()
   for ( int i = 0; i < HOLE_NUM_LEDS; i++) { //9948
     hole[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
   }
-}
+  }
 */
 void bpm()
 {
@@ -206,7 +206,7 @@ void bpm()
 }
 
 /*
-void juggle() {
+  void juggle() {
   Serial.println("juggle");
   // eight colored dots, weaving in and out of sync with each other
   fadeToBlackBy( leds, NUM_LEDS, 20);
@@ -215,5 +215,5 @@ void juggle() {
     leds[beatsin16(i + 7, 0, NUM_LEDS)] |=  CRGB::Blue; //CHSV(dothue, 200, 255);
     dothue += 32;
   }
-}
+  }
 */
