@@ -6,15 +6,19 @@
 // compose using FastLED.
 
 #define IRPin A0
+#define GAUGE_PIN1 2
+#define GAUGE_PIN2 3
 #define STAR_PIN 6
 #define HOLE_PIN 5
 #define STAR_NUM_LEDS 113
 #define HOLE_NUM_LEDS 22
+#define GAUGE_NUM_LEDS 60
 
 #define LED_TYPE    NEOPIXEL
 
 CRGB star[STAR_NUM_LEDS];
 CRGB hole[HOLE_NUM_LEDS];
+CRGB gauge1[GAUGE_NUM_LEDS];
 
 #define FRAMES_PER_SECOND  120
 #define NB_FLASH_CYCLES 4
@@ -30,7 +34,7 @@ int distance_cm = 100;
 */
 SharpIR mySensor = SharpIR(IRPin, model);
 
-int count_bottle = 0;
+int count_bottle = 0, count_bottle_old = 0;
 int brightness = 100;
 boolean go_count = false; // decide if we have to count  loop or not.
 int loop_count = 0; // loop count for flashing scenario.
@@ -41,12 +45,15 @@ void setup() {
   // tell FastLED about the LED strip configuration
   FastLED.addLeds<LED_TYPE, STAR_PIN>(star, STAR_NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.addLeds<LED_TYPE, HOLE_PIN>(hole, HOLE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, GAUGE_PIN1>(gauge1, GAUGE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, GAUGE_PIN2>(gauge1, GAUGE_NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   // set master brightness control
   FastLED.setBrightness(brightness);
   // All leds black
   star[0] = CRGB::Black;
   hole[0] = CRGB::Black;
+  gauge1[0] = CRGB::Black;
   FastLED.show();
 }
 
@@ -80,12 +87,20 @@ void loop()
   // insert a delay to keep the framerate modest
   FastLED.delay(1000 / FRAMES_PER_SECOND);
 
+  // Fill in gauge
+  if (count_bottle != count_bottle_old) {
+    gauge_counter  = ceil(count_bottle / 4);
+    count_bottle_old = count_bottle;
+    update_gauges();
+  }
+
   // do some periodic updates
   EVERY_N_MILLISECONDS( 20 ) {
     gHue++;  // slowly cycle the "base color" through the rainbow
   }
 
   EVERY_N_SECONDS( 1 ) {
+
     // See if we need to change scenario
     if (loop_count == NB_FLASH_CYCLES) {
       gCurrentPatternNumber = 0;
@@ -109,6 +124,20 @@ void nextPattern()
   gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns);
 }
 
+void update_gauges() {
+  if (gauge_counter <= GAUGE_NUM_LEDS + 1) {
+    for ( int i = 0; i < gauge_counter; i++) { //9948
+      if (i < ceil(0.5 * GAUGE_NUM_LEDS) ) {
+        gauge1[GAUGE_NUM_LEDS - i] = CRGB::Yellow;
+      }
+      else if ( i < ceil(0.75 * GAUGE_NUM_LEDS))  {
+        gauge1[GAUGE_NUM_LEDS - i] = CRGB::OrangeRed;
+      } else {
+        gauge1[GAUGE_NUM_LEDS - i] = CRGB::Red;
+      }
+    }
+  }
+}
 /*
   void rainbow()
   {
@@ -146,7 +175,6 @@ void addGlitter( fract8 chanceOfGlitter)
 */
 void yellow_confetti()
 {
-  Serial.println("white_confetti");
   // random colored speckles that blink in and fade smoothly
   fadeToBlackBy( star, STAR_NUM_LEDS, 10);
   int pos = random16(STAR_NUM_LEDS);
